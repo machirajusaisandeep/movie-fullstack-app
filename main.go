@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fullstack/movie/handlers"
 	"fullstack/movie/logger"
 	"log"
 	"net/http"
@@ -12,6 +13,10 @@ func main() {
 
 	// Static files or Frontend
 	http.Handle("/", http.FileServer(http.Dir("public")))
+
+	//Backend APIs
+	movieHandler := handlers.MovieHandler{}
+	http.HandleFunc("/api/movies/top/", movieHandler.GetTopMovies)
 
 	// Start server
 	const addr = ":8080"
