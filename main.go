@@ -11,12 +11,15 @@ func main() {
 	// Initialize logger
 	logInstance := initializeLogger()
 
+	//Backend APIs
+	movieHandler := handlers.NewMovieHandler(logInstance)
+	http.HandleFunc("/api/movies/top", movieHandler.GetTopMovies)
+	http.HandleFunc("/api/movies/top/", movieHandler.GetTopMovies)
+	http.HandleFunc("/api/movies/random", movieHandler.GetRandomMovies)
+	http.HandleFunc("/api/movies/random/", movieHandler.GetRandomMovies)
+
 	// Static files or Frontend
 	http.Handle("/", http.FileServer(http.Dir("public")))
-
-	//Backend APIs
-	movieHandler := handlers.MovieHandler{}
-	http.HandleFunc("/api/movies/top/", movieHandler.GetTopMovies)
 
 	// Start server
 	const addr = ":8080"
