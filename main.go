@@ -10,6 +10,7 @@ func main() {
 	// Initialize logger
 	logInstance := initializeLogger()
 
+	// Static files or Frontend
 	http.Handle("/", http.FileServer(http.Dir("public")))
 
 	// Start server
