@@ -1,15 +1,41 @@
 package main
 
 import (
+	"database/sql"
 	"fullstack/movie/handlers"
 	"fullstack/movie/logger"
 	"log"
 	"net/http"
+	"os"
+
+	_ "github.com/lib/pq"
+
+	"github.com/joho/godotenv"
 )
 
 func main() {
 	// Initialize logger
 	logInstance := initializeLogger()
+
+	//env load
+	if err := godotenv.Load(); err != nil {
+		logInstance.Error("Error loading .env file", err)
+		log.Fatal("No .env file found")
+	}
+
+	// Database connection
+	dbConnStr := os.Getenv("DATABASE_URL")
+	if dbConnStr == "" {
+		logInstance.Error("DATABASE_URL not set in environment variables", nil)
+		log.Fatal("DATABASE_URL not set")
+	}
+	db, err := sql.Open("postgres", dbConnStr)
+	if err != nil {
+		logInstance.Error("Error opening database connection", err)
+		log.Fatal("Error opening database connection")
+	}
+	logInstance.Info("Database connection string loaded")
+	defer db.Close()
 
 	//Backend APIs
 	movieHandler := handlers.NewMovieHandler(logInstance)
