@@ -46,11 +46,14 @@ func main() {
 	}
 
 	//Backend APIs
-	movieHandler := handlers.NewMovieHandler(logInstance, movieRepo)
-	http.HandleFunc("/api/movies/top", movieHandler.GetTopMovies)
-	http.HandleFunc("/api/movies/top/", movieHandler.GetTopMovies)
+	movieHandler := handlers.NewMovieHandler(movieRepo, logInstance)
 	http.HandleFunc("/api/movies/random", movieHandler.GetRandomMovies)
-	http.HandleFunc("/api/movies/random/", movieHandler.GetRandomMovies)
+	http.HandleFunc("/api/movies/top", movieHandler.GetTopMovies)
+	http.HandleFunc("/api/movies/search", movieHandler.SearchMovies)
+	http.HandleFunc("/api/movies/", movieHandler.GetMovie)
+	http.HandleFunc("/api/genres", movieHandler.GetGenres)
+	http.HandleFunc("/api/account/register", movieHandler.GetGenres)
+	http.HandleFunc("/api/account/authenticate", movieHandler.GetGenres)
 
 	// Static files or Frontend
 	http.Handle("/", http.FileServer(http.Dir("public")))
@@ -66,6 +69,7 @@ func main() {
 
 func initializeLogger() *logger.Logger {
 	logInstance, err := logger.NewLogger("movie-service.log")
+	logInstance.Error("Hello from Error system", nil)
 	if err != nil {
 		log.Fatalf("Failed to initialize logger: %v", err)
 	}
