@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fullstack/movie/data"
 	"fullstack/movie/handlers"
 	"fullstack/movie/logger"
 	"log"
@@ -37,8 +38,15 @@ func main() {
 	logInstance.Info("Database connection string loaded")
 	defer db.Close()
 
+	// Initialize repositories
+	movieRepo, err := data.NewMovieRepository(db, logInstance)
+	if err != nil {
+		logInstance.Error("Failed to initialize movie repository", err)
+		log.Fatal("Failed to initialize movie repository")
+	}
+
 	//Backend APIs
-	movieHandler := handlers.NewMovieHandler(logInstance)
+	movieHandler := handlers.NewMovieHandler(logInstance, movieRepo)
 	http.HandleFunc("/api/movies/top", movieHandler.GetTopMovies)
 	http.HandleFunc("/api/movies/top/", movieHandler.GetTopMovies)
 	http.HandleFunc("/api/movies/random", movieHandler.GetRandomMovies)

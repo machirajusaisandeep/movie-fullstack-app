@@ -2,18 +2,20 @@ package handlers
 
 import (
 	"encoding/json"
+	"fullstack/movie/data"
 	"fullstack/movie/logger"
-	"fullstack/movie/models"
 	"net/http"
 )
 
 type MovieHandler struct {
-	logger *logger.Logger
+	storage data.MovieStorage
+	logger  *logger.Logger
 }
 
-func NewMovieHandler(logger *logger.Logger) *MovieHandler {
+func NewMovieHandler(logger *logger.Logger, storage data.MovieStorage) *MovieHandler {
 	return &MovieHandler{
-		logger: logger,
+		logger:  logger,
+		storage: storage,
 	}
 }
 
@@ -28,33 +30,11 @@ func (h *MovieHandler) writeJSONResponse(w http.ResponseWriter, data interface{}
 }
 
 func (h *MovieHandler) GetTopMovies(w http.ResponseWriter, r *http.Request) {
-	movies := []models.Movie{
-		{
-			ID:          1,
-			TMDB_ID:     101,
-			Title:       "The Hacker",
-			ReleaseYear: 2022,
-			Genres:      []models.Genre{{ID: 1, Name: "Thriller"}},
-			Keywords:    []string{"hacking", "cybercrime"},
-			Casting:     []models.Actor{{ID: 1, Name: "Jane Doe"}},
-		}, {
-			ID:          2,
-			TMDB_ID:     102,
-			Title:       "Space Dreams",
-			ReleaseYear: 2020,
-			Genres:      []models.Genre{{ID: 2, Name: "Sci-Fi"}},
-			Keywords:    []string{"space", "exploration"},
-			Casting:     []models.Actor{{ID: 2, Name: "John Star"}},
-		},
-		{
-			ID:          3,
-			TMDB_ID:     103,
-			Title:       "The Lost City",
-			ReleaseYear: 2019,
-			Genres:      []models.Genre{{ID: 3, Name: "Adventure"}},
-			Keywords:    []string{"jungle", "treasure"},
-			Casting:     []models.Actor{{ID: 3, Name: "Lara Hunt"}},
-		},
+	movies, err := h.storage.GetTopMovies()
+	if err != nil {
+		h.logger.Error("Failed to get top movies", err)
+		http.Error(w, "Failed to get top movies", http.StatusInternalServerError)
+		return
 	}
 	if h.writeJSONResponse(w, movies) == nil {
 		h.logger.Info("Successfully served top movies")
@@ -62,35 +42,13 @@ func (h *MovieHandler) GetTopMovies(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *MovieHandler) GetRandomMovies(w http.ResponseWriter, r *http.Request) {
-	movies := []models.Movie{
-		{
-			ID:          1,
-			TMDB_ID:     101,
-			Title:       "The Hacker Random",
-			ReleaseYear: 2022,
-			Genres:      []models.Genre{{ID: 1, Name: "Thriller"}},
-			Keywords:    []string{"hacking", "cybercrime"},
-			Casting:     []models.Actor{{ID: 1, Name: "Jane Doe"}},
-		}, {
-			ID:          2,
-			TMDB_ID:     102,
-			Title:       "Space Dreams Random",
-			ReleaseYear: 2020,
-			Genres:      []models.Genre{{ID: 2, Name: "Sci-Fi"}},
-			Keywords:    []string{"space", "exploration"},
-			Casting:     []models.Actor{{ID: 2, Name: "John Star"}},
-		},
-		{
-			ID:          3,
-			TMDB_ID:     103,
-			Title:       "The Lost City Random",
-			ReleaseYear: 2019,
-			Genres:      []models.Genre{{ID: 3, Name: "Adventure"}},
-			Keywords:    []string{"jungle", "treasure"},
-			Casting:     []models.Actor{{ID: 3, Name: "Lara Hunt"}},
-		},
+	movies, err := h.storage.GetRandomMovies()
+	if err != nil {
+		h.logger.Error("Failed to get random movies", err)
+		http.Error(w, "Failed to get random movies", http.StatusInternalServerError)
+		return
 	}
 	if h.writeJSONResponse(w, movies) == nil {
-		h.logger.Info("Successfully served top movies")
+		h.logger.Info("Successfully served random movies")
 	}
 }
